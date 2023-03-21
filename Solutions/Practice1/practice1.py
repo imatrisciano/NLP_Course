@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parole_non_adventure_filtrate = [x for x in parole_non_adventure if x not in punteggiatura]
 
     print(f"Dimensione vocabolario filtrato, ma non normalizzato per categoria ADVENTURE: {len(parole_adventure_filtrate)}")
-    print(f"Dimensione vocabolario filtrato, ma non normalizzato per categoria tutte le altre categorie: {len(parole_non_adventure_filtrate)}")
+    print(f"Dimensione vocabolario filtrato, ma non normalizzato per tutte le altre categorie: {len(parole_non_adventure_filtrate)}")
 
 
     # Calcolo numero di occorrenze
