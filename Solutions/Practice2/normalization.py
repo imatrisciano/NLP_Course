@@ -3,17 +3,20 @@ import string
 
 from nltk import WordNetLemmatizer
 from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+
 from util import downloadDataset
 
 class MyNormalizer:
-    def __init__(self):
+    def __init__(self, language="english"):
         self.punctuation = MyNormalizer._getPunctuation()
-        #downloadDataset("punkt")
+        downloadDataset("punkt")
         downloadDataset("wordnet")
         downloadDataset("stopwords")
 
         self.lemmatizer = WordNetLemmatizer()
         self.stemmer = PorterStemmer()
+        self.language = language
 
 
     @staticmethod
@@ -21,6 +24,9 @@ class MyNormalizer:
         punctuation = set(string.punctuation)
         punctuation.add('``')
         punctuation.add('\'\'')
+        punctuation.add('“')
+        punctuation.add('”')
+        punctuation.add('’')
 
         return punctuation
 
@@ -57,6 +63,11 @@ class MyNormalizer:
                        remove_stopwords=False) -> list:
         assert (lemmalize is False or stem is False)  # do not allow lemmalization and stemming at the same time
 
+        # we expect 'words' to be a list of words
+        # if it's a string then we tokenize it to get a list of words
+        if isinstance(words, str):
+            words = word_tokenize(words)
+
         if make_lowercase:
             words = self.makeLowercase(words)
         if remove_punctuation:
@@ -66,6 +77,6 @@ class MyNormalizer:
         if stem:
             words = self.stemWords(words)
         if remove_stopwords:
-            words = self.removeStopwords(words)
+            words = self.removeStopwords(words, language=self.language)
 
         return words
