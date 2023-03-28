@@ -1,16 +1,19 @@
+import keras
 import numpy as np
 
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
+from sklearn.model_selection import train_test_split
 
+from neural_network import train_deep_neural_network
 from dataset_reader import read_dataset
 from WordEmbedding import *
 from normalization import MyNormalizer
 from ngrams import *
 
-itwac_path = '../../data/word2vec/itwac128.sqlite'
-twitter_path = '../../data/word2vec/twitter128.sqlite'
-haspedee_dataset_path = '../../data/hate_speech/haspeede2020/haspeede2_dev_taskAB.tsv'
+itwac_path = '../../../data/word2vec/itwac128.sqlite'
+twitter_path = '../../../data/word2vec/twitter128.sqlite'
+haspedee_dataset_path = '../../../data/hate_speech/haspeede2020/haspeede2_dev_taskAB.tsv'
 id_to_label = {"0": "NoHate", "1": "Hate"}
 
 
@@ -22,9 +25,9 @@ n_trigrams = 1
 
 def evaluate(y_ref, y_predicted):
     a = accuracy_score(y_ref, y_predicted)
-    p = precision_score(y_ref, y_predicted, pos_label="1")
-    r = recall_score(y_ref, y_predicted, pos_label="1")
-    f1 = f1_score(y_ref, y_predicted, pos_label="1")
+    p = precision_score(y_ref, y_predicted)
+    r = recall_score(y_ref, y_predicted)
+    f1 = f1_score(y_ref, y_predicted)
 
     print(f"accuracy: {a}")
     print(f"precision: {p}")
@@ -74,6 +77,8 @@ def getFeatureVectorSize():
     return (n_unigrams + 2*n_bigrams + 3*n_trigrams) * embedding_size
 
 if __name__ == "__main__":
+    print("This solution does not work.")
+
     data_path = twitter_path
     #print(os.getcwd())
 
@@ -89,10 +94,11 @@ if __name__ == "__main__":
     """
 
     documents, labels, text_to_id_map = read_dataset(haspedee_dataset_path)
+    print(labels)
     wordNormalizer = MyNormalizer(language="italian")
 
-    documentFeatures = np.array([])
-    items_count = 200 #len(documents)
+    documentFeatures = []
+    items_count = 2000 #len(documents)
     #for document, label in zip(documents, labels):
     #for i in range(len(documents)):
     for i in range(items_count):
@@ -117,13 +123,26 @@ if __name__ == "__main__":
         #print("\r\n")
         features = makeFeaturesVector(embeddings, unigrams, bigrams, trigrams)
         assert(len(features) == getFeatureVectorSize())
-        documentFeatures = np.append(documentFeatures, features)
+        documentFeatures.append(features)
         #print("\r\n\r\n\r\n")
 
-    documentFeatures = documentFeatures.reshape((items_count, getFeatureVectorSize()))
+    embeddings = None  # free some memory
+    #documentFeatures = documentFeatures.reshape((items_count, getFeatureVectorSize()))
+    x = documentFeatures[1:items_count]
+    y = labels[1:items_count]
 
+    x = np.array(x)
+    y = np.array(y)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.1)
+    neural_network = train_deep_neural_network(x_train, y_train, getFeatureVectorSize(), plot=True)
+    neural_network.save("nn.h5")
 
-    # TODO: evaluate(y, y_predicted)
+    neural_network = keras.models.load_model("nn.h5")
+    y_predicted = neural_network.predict(x_test)
+    y_test = [1 if x == '1' else 0 for x in y_test]
+    y_predicted = [1 if x >= 0.5 else 0 for x in y_predicted]
+    evaluate(y_test, y_predicted)
+    print("hello")
 
 
 
