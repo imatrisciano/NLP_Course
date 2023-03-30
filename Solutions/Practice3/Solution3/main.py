@@ -26,10 +26,11 @@ def evaluate(y_ref, y_predicted):
     r = recall_score(y_ref, y_predicted)
     f1 = f1_score(y_ref, y_predicted)
 
-    print(f"accuracy: {a}")
-    print(f"precision: {p}")
-    print(f"recall: {r}")
-    print(f"f1: {f1}")
+    print("Metrics con test set:")
+    print(f" accuracy: {a}")
+    print(f" precision: {p}")
+    print(f" recall: {r}")
+    print(f" f1: {f1}")
 
 
 def customFilter(words: list) -> list:
@@ -105,6 +106,9 @@ if __name__ == "__main__":
     train_features = scaler.transform(train_features)
 
     classifier, metrics = svc(train_features, train_labels)
+
+    print(f"Best classifier is {classifier}")
+    print(metrics)
 
     test_features = []
     for doc in test_documents:
