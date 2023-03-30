@@ -47,7 +47,11 @@ class EmbeddingDatasetReader:
                     f"Word '{word}' not found in embedding database. Consider looking for a similar word using Minimum Edit Distance",
                     file=sys.stderr)
                 return None
-        except(sqlite3.OperationalError):
+        except sqlite3.OperationalError:
+            print(
+                f"Database error. Retrying.",
+                file=sys.stderr)
+            # Retry
             return self.getWordEntry(word)
 
 

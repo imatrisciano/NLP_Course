@@ -56,7 +56,14 @@ def svc(x, y, cv=5):
     return best_model, best_model_metrics
 
 def extractDocumentFeatures(words:list) -> np.array:
-    words = wordNormalizer.normalizeWords(words, make_lowercase=True, remove_punctuation=True, remove_stopwords=True)
+    """
+    # By executing this we can observe that capitalization does matter in the embeddings dataset as the embedding
+    # vectors of 'Che' and 'che' are different
+    print(embeddings.getWordEmbedding("che"))
+    print(embeddings.getWordEmbedding("Che"))
+    """
+
+    words = wordNormalizer.normalizeWords(words, make_lowercase=False, remove_punctuation=True, remove_stopwords=True)
     words = customFilter(words)
 
     embeddingSum = np.zeros(embedding_size)
@@ -68,20 +75,13 @@ def extractDocumentFeatures(words:list) -> np.array:
     return embeddingSum
 
 if __name__ == "__main__":
-    print("This solution does not work.")
-    
     data_path = twitter_path
 
     # Reading embeddings
     # Each row contains a word and the corresponding embedding (128 dimensions)
     embeddings = EmbeddingDatasetReader(data_path)
 
-    """
-    # By executing this we can observe that capitalization does matter in the embeddings dataset as the embedding
-    # vectors of 'Che' and 'che' are different
-    print(embeddings.searchWord("che"))
-    print(embeddings.searchWord("Che"))
-    """
+
 
     documents, labels, text_to_id_map = read_dataset(haspedee_dataset_path)
     train_documents, test_documents, train_labels, test_labels = train_test_split(documents, labels, test_size=0.1)
