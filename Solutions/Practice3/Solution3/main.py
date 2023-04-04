@@ -42,7 +42,7 @@ def contains_digits(s):
     return any(char.isdigit() for char in s)
 
 
-def svc(x, y, cv=5):
+def svc(x, y, cv=5) -> (svm.SVC, pd.DataFrame):
     """
     This piece of code was written in collaboration with github.com/alessandroquirile/ for another project
     :param x: training data
@@ -54,7 +54,7 @@ def svc(x, y, cv=5):
     param_grid = {'C': [0.01, 0.1, 1, 10],
                   'kernel': ['linear', 'rbf', 'poly'],
                   'gamma': ['auto']}
-    grid = GridSearchCV(svm.SVC(), param_grid, cv=cv, n_jobs=-1, verbose=1,
+    grid = GridSearchCV(svm.SVC(), param_grid, cv=cv, n_jobs=-1, verbose=0,
                         scoring=("accuracy", "precision", "recall", "f1"),
                         refit="f1")
     grid.fit(x, y)
