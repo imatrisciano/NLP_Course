@@ -101,6 +101,33 @@ if __name__ == "__main__":
     predicted_labels = classifier.predict(test_features)
     evaluate(test_labels, predicted_labels)
 
+
+    def show_cv_performance(model, scores):
+        accuracy_avg, accuracy_std, precision_avg, precision_std, recall_avg, recall_std, f1_avg, f1_std = \
+            get_performance_from_scores(scores)
+
+        print(
+            f"Model: {model}\n"
+            f"Accuracy: {accuracy_avg} ± {accuracy_std}\n"
+            f"Precision: {precision_avg} ± {precision_std}\n"
+            f"Recall: {recall_avg} ± {recall_std}\n"
+            f"F1: {f1_avg} ± {f1_std}"
+        )
+
+
+    def get_performance_from_scores(scores):
+        accuracy_avg = scores['mean_test_accuracy'].iloc[0]
+        accuracy_std = scores['std_test_accuracy'].iloc[0]
+        precision_avg = scores['mean_test_precision'].iloc[0]
+        precision_std = scores['std_test_precision'].iloc[0]
+        recall_avg = scores['mean_test_recall'].iloc[0]
+        recall_std = scores['std_test_recall'].iloc[0]
+        f1_avg = scores['mean_test_f1'].iloc[0]
+        f1_std = scores['std_test_f1'].iloc[0]
+
+        return accuracy_avg, accuracy_std, precision_avg, precision_std, recall_avg, recall_std, f1_avg, f1_std
+
+    show_cv_performance(classifier, metrics)
     """
     Output con SVC:
         Metrics con test set:
@@ -113,4 +140,10 @@ if __name__ == "__main__":
         precision: 0.7253521126760564
         recall: 0.7686567164179104
         f1: 0.7463768115942029
+        
+        
+        Accuracy: 0.7697806661251017 ± 0.0049970939071420535
+        Precision: 0.7183933344208189 ± 0.020059245314950326
+        Recall: 0.7050620938236383 ± 0.02239757558655897
+        F1: 0.7111792941619812 ± 0.010384806343592136
     """
