@@ -12,8 +12,10 @@ from normalization import MyNormalizer
 from sentence_transformers import SentenceTransformer
 from neural_network import train_deep_neural_network
 
-model_name = "nickprock/sentence-bert-base-italian-uncased" # https://huggingface.co/nickprock/sentence-bert-base-italian-uncased
+#model_name = "nickprock/sentence-bert-base-italian-uncased" # https://huggingface.co/nickprock/sentence-bert-base-italian-uncased
+model_name = "nickprock/sentence-bert-base-italian-xxl-uncased"  # https://huggingface.co/nickprock/sentence-bert-base-italian-xxl-uncased
 
+#model_name = "xlm-roberta-base"
 
 
 haspedee_dataset_path = '../../../data/hate_speech/haspeede2020/haspeede2_dev_taskAB.tsv'
@@ -74,12 +76,20 @@ if __name__ == "__main__":
 
     print("Loading dataset...")
     documents, labels, text_to_id_map = read_dataset(haspedee_dataset_path)
-    train_documents, test_documents, train_labels, test_labels = train_test_split(documents, labels, test_size=0.1)
-    wordNormalizer = MyNormalizer(language="italian")
+    #wordNormalizer = MyNormalizer(language="italian")
+
+    filtered_documents = []
+    for doc in documents:
+        filtered_doc = doc.replace("@user", "").replace("URL", "")
+        filtered_documents.append(filtered_doc)
+
+    train_documents, test_documents, train_labels, test_labels = train_test_split(filtered_documents, labels, test_size=0.1)
+
 
     print("Extracting training features...")
     train_features = bert_model.encode(train_documents)
 
+    """
     print("Fitting features scaler...")
     scaler = StandardScaler()  # define the scaler
     scaler.fit(train_features)  # fit on the training dataset
@@ -88,14 +98,16 @@ if __name__ == "__main__":
 
     print("Training classification model...")
     # classifier, metrics = svc(train_features, train_labels)
+    """
+
     classifier, metrics = train_deep_neural_network(train_features, train_labels, 768)
 
     print(f" > Best classifier is {classifier}")
     print(metrics)
 
-    print("Extracting and scaling test features...")
+    print("Extracting and test features...")
     test_features = bert_model.encode(test_documents)
-    test_features = scaler.transform(test_features)
+    # test_features = scaler.transform(test_features)
 
     print("Predicting test data...")
     predicted_labels = classifier.predict(test_features)
@@ -129,21 +141,56 @@ if __name__ == "__main__":
 
     show_cv_performance(classifier, metrics)
     """
-    Output con SVC:
+    model_name = "nickprock/sentence-bert-base-italian-uncased"
+        Output with SVC and features scaling:
+            Metrics con test set:
+            accuracy: 0.7660818713450293
+            precision: 0.7163636363636363
+            recall: 0.7060931899641577
+            f1: 0.7111913357400721
+        Output con Deep Neaural Network:
+            Test set results:
+                accuracy: 0.7733918128654971
+                precision: 0.7386363636363636
+                recall: 0.693950177935943
+                f1: 0.7155963302752294
+            
+            Cross validation results:
+                Accuracy: 0.7702680747359869 ± 0.005070507403518203
+                Precision: 0.7217562130252551 ± 0.014111879409211896
+                Recall: 0.7015263090455042 ± 0.006276554603057393
+                F1: 0.7113689850575797 ± 0.005145460905179358
+                
+    model_name = "nickprock/sentence-bert-base-italian-xxl-uncased" 
+        Output con Deep Neaural Network:     
+            Metrics con test set:
+                accuracy: 0.7763157894736842
+                precision: 0.7231833910034602
+                recall: 0.7411347517730497
+                f1: 0.7320490367775833
+                
+            Metriche cross validation:
+                Accuracy: 0.7800162469536962 ± 0.01486751622126186
+                Precision: 0.7420579305251603 ± 0.022944387947300568
+                Recall: 0.6967848076563965 ± 0.02355621556768913
+                F1: 0.7186221163673477 ± 0.021827567587715226
+
+    model_name = "xlm-roberta-base", 1024 epochs
         Metrics con test set:
-        accuracy: 0.7660818713450293
-        precision: 0.7163636363636363
-        recall: 0.7060931899641577
-        f1: 0.7111913357400721
-    Output con Deep Neaural Network:
-        accuracy: 0.7953216374269005
-        precision: 0.7253521126760564
-        recall: 0.7686567164179104
-        f1: 0.7463768115942029
+            accuracy: 0.7646198830409356
+            precision: 0.728744939271255
+            recall: 0.656934306569343
+            f1: 0.6909788867562379
+            
+        Metriche cross validation:    
+            Accuracy: 0.7567831031681559 ± 0.013205085800952802
+            Precision: 0.6995359128840348 ± 0.035042433099694736
+            Recall: 0.704077673835479 ± 0.02571905162313388
+            F1: 0.7007740741192054 ± 0.01491529835221565
+
+Process finished with exit code 0
+
         
-        
-        Accuracy: 0.7697806661251017 ± 0.0049970939071420535
-        Precision: 0.7183933344208189 ± 0.020059245314950326
-        Recall: 0.7050620938236383 ± 0.02239757558655897
-        F1: 0.7111792941619812 ± 0.010384806343592136
+Process finished with exit code 0
+
     """

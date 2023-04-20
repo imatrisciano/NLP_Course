@@ -21,6 +21,7 @@ def create_model(input_size):
 
     model.compile(loss='binary_crossentropy', metrics=['accuracy'], optimizer='adam')
     return model
+
 def train_deep_neural_network(x_train, y_train, input_size, plot=False):
     params = {"input_size": input_size}
     model = KerasClassifier(build_fn=create_model, **params)
